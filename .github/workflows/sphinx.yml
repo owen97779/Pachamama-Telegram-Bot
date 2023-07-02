@@ -43,7 +43,7 @@ jobs:
     - name: Build sphinx documentation
       run: |
         sphinx-build -b latex docs .
-        pdflatex --output-directory docs armageddon.tex
+        pdflatex --output-directory docs telegrambot.tex
     - name: commit changes
       run: |
         git add docs/telegrambot.pdf
