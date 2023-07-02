@@ -1,0 +1,5 @@
+*.env
+.eggs
+__pycache__
+telegrambot.egg-info
+.DS_Store

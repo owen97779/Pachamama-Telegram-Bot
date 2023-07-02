@@ -1,0 +1,12 @@
+name: telegram-bot-environment
+channels:
+- conda-forge
+dependencies:
+- python=3.10
+- pip
+- pip:
+  - python-telegram-bot
+  - ping3
+  - notebook
+  - aiomqtt
+  - black

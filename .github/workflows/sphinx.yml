@@ -1,0 +1,60 @@
+name: Sphinx
+
+on:
+   # Trigger the workflow on push or pull request,
+   # but only for the master branch
+   push:
+     branches:
+       - main
+   pull_request:
+     branches:
+       - main
+
+jobs:
+  sphinx:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+
+    - name: conda environment
+      run: |
+        pip install sphinx
+     
+    - name: Build sphinx documentation
+      run: |
+        sphinx-build -b html docs docs/html
+     
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -e .
+        pip install -r requirements.txt
+     
+    - name: Install texlive
+      run: |
+        sudo apt install texlive
+        sudo apt-get install -y latexmk
+        sudo apt-get install -y texlive-latex-extra
+    - name: Build sphinx documentation
+      run: |
+        sphinx-build -b latex docs .
+        pdflatex --output-directory docs armageddon.tex
+    - name: commit changes
+      run: |
+        git add docs/telegrambot.pdf
+        git config --global user.email "github@linux"
+        git config --global user.name "githublinux"
+        git commit -m "update html and pdf through wrokflow"
+        git remote
+        
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
