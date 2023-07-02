@@ -81,8 +81,13 @@ async def broadcast_command(
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
     '''
-    msg = " ".join(context.args)
-    await notify(msg, store.subscribers, TOKEN)
+    if update.message.chat_id in store.subscribers:
+        msg = " ".join(context.args)
+        await notify(msg, store.subscribers, TOKEN)
+    else:
+        await update.message.reply_text(
+            f"❌ You are not subscribed to the Pachamama Network Status Bot to send a broadcast message."
+        )
 
 
 # error handling function
@@ -119,9 +124,9 @@ async def ping_command(store, update: Update, context: ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
     '''
     host = store.hostobj[context.args[0].lower().capitalize()]
-    host.ping(2)
-    ping = round(host.pinginfo["average_ping"], 2)
-    await update.message.reply_text(f"Ping to {host.host_name}:\n{ping} ms")
+    host.ping(1)
+    ping = host.pinginfo["average_ping"]
+    await update.message.reply_text(f"Ping to {host.host_name}: 🏓\n{ping} ms")
 
 
 async def ping_info_command(
@@ -144,14 +149,15 @@ async def ping_info_command(
     host.ping(count)
     ping_times = ""
     for ping in host.pinginfo["ping_times"]:
-        ping_times += f"\n{ping} ms"
+        ping_times += f"\n    {ping} ms"
     await update.message.reply_text(
         f"""
-    Ping to {host.host_name}:
-    Average Ping: {round(host.pinginfo['average_ping'], 2)} ms
+    Ping to {host.host_name}: 🏓🏓
+    Average Ping: {host.pinginfo['average_ping']} ms
     Ping Count: {host.pinginfo['ping_count']}
-    Success Rate: {round(host.pinginfo['success_rate'], 2)}\n
-    Ping Times: {ping_times}
+    Success Rate: {host.pinginfo['success_rate']}
+    
+Ping Times: {ping_times}
     """
     )
 
@@ -345,11 +351,11 @@ async def ping_all(store, TOKEN):
                     and single_hostobj.down_notify_flag == False
                 )
                 error_code = single_hostobj.down()
-            elif status == True and (70 < average_ping < 150):
+            elif status == True and (100 < average_ping < 150):
                 error_code = single_hostobj.amber()
             elif status == True and (average_ping >= 150):
                 error_code = single_hostobj.red()
-            elif status == True and (average_ping <= 70):
+            elif status == True and (average_ping <= 100):
                 error_code = single_hostobj.green()
             else:
                 pass
