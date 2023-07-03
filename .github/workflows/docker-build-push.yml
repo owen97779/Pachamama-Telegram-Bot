@@ -28,6 +28,6 @@ jobs:
           tags: owen97779/pachamama-telegram-bot:latest
           
       - name: Trigger Container Restart
+        uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ secrets.PORTAINER_WEBHOOK_URL }}
-          method: POST
