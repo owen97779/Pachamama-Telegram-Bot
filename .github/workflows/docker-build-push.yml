@@ -26,3 +26,9 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: owen97779/pachamama-telegram-bot:latest
+          
+      - name: Trigger Container Restart
+        uses: peter-evans/http-request@v2
+        with:
+          url: ${{ secrets.PORTAINER_WEBHOOK_URL }}
+          method: POST
