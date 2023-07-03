@@ -351,11 +351,11 @@ async def ping_all(store, TOKEN):
                     and single_hostobj.down_notify_flag == False
                 )
                 error_code = single_hostobj.down()
-            elif status == True and (100 < average_ping < 150):
+            elif status == True and (120 < average_ping < 200):
                 error_code = single_hostobj.amber()
-            elif status == True and (average_ping >= 150):
+            elif status == True and (average_ping >= 200):
                 error_code = single_hostobj.red()
-            elif status == True and (average_ping <= 100):
+            elif status == True and (average_ping <= 120):
                 error_code = single_hostobj.green()
             else:
                 pass
