@@ -18,6 +18,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Broadcast Docker container restart to users
+        uses: muinmomin/webhook-action@v1.0.0
+        with:
+          url: ${{ secrets.TELEGRAM_BOT_WEBHOOK_URL }}
 
       - name: Build and Push Docker image
         uses: docker/build-push-action@v2
@@ -26,7 +31,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: owen97779/pachamama-telegram-bot:latest
-          
+
       - name: Trigger Container Restart
         uses: muinmomin/webhook-action@v1.0.0
         with:
