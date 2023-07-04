@@ -1,7 +1,6 @@
 from telegram import Bot
 
-
-async def notify(msg: str, subscribers: list, TOKEN):
+async def notify(msg: str, chatids, TOKEN):
     """
     Notify function to send a message to all subscribers for the bot.
     Parameters
@@ -14,5 +13,5 @@ async def notify(msg: str, subscribers: list, TOKEN):
         The bot token.
     """
     bot = Bot(token=TOKEN)
-    for chatid in subscribers:
-        await bot.send_message(chatid, text=msg)
+    for chatid in chatids:
+        await bot.send_message(int(chatid), text=msg)

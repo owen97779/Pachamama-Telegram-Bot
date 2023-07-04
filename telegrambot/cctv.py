@@ -1,9 +1,6 @@
-import datetime
 import aiomqtt
-import asyncio
+import datetime
 from utils import notify
-from store import Store
-
 
 class CCTVmember(object):
     """
@@ -123,4 +120,10 @@ class CCTV(object):
                         \n[{formatted_date}]        {self.members[name].logged_in_time} - {self.members[name].logged_out_time}
                         """
                         print(msg)
-                        await notify(msg, store.subscribers, TOKEN)
+                        cctv_chatids = [
+                            key
+                            for key, value in store.subscribers.items()
+                            if "cctv_sub" in value and value["cctv_sub"]
+                        ]
+
+                        await notify(msg, cctv_chatids, TOKEN)
