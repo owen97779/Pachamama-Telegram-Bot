@@ -11,7 +11,7 @@ from telegram.ext import ContextTypes
 
 # start command function
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+    """
     Command for user if they want to start the bot
 
     Parameters
@@ -20,7 +20,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     await update.message.reply_text(
         """
     Secret start command :)
@@ -32,7 +32,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # help command function
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+    """
     Command for user if they want to know more about the bot
 
     Parameters
@@ -41,7 +41,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     await update.message.reply_text(
         """
     Hi! I am the Pachamama Network Status bot. I can help you check the status of the Pachamama Network.
@@ -67,7 +67,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def broadcast_command(
     store, TOKEN, update: Update, context: ContextTypes.DEFAULT_TYPE
 ):
-    '''
+    """
     Command for user if they want to broadcast a message
 
     Parameters
@@ -80,10 +80,17 @@ async def broadcast_command(
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
-    if update.message.chat_id in store.subscribers:
+    """
+    broadcast_chatids = [
+        key
+        for key, value in store.subscribers.items()
+        if "broadcast" in value and value["broadcast"]
+    ]
+
+    if str(update.message.chat_id) in broadcast_chatids:
         msg = " ".join(context.args)
-        await notify(msg, store.subscribers, TOKEN)
+
+        await notify(msg, broadcast_chatids, TOKEN)
     else:
         await update.message.reply_text(
             f"❌ You are not subscribed to the Pachamama Network Status Bot to send a broadcast message."
@@ -92,7 +99,7 @@ async def broadcast_command(
 
 # error handling function
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+    """
     Command for user if they use a command incorrectly
 
     Parameters
@@ -101,7 +108,7 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     print(f"Update {update} caused error {context.error}")
     await update.message.reply_text(
         f"""❌ Command used incorrectly!
@@ -111,7 +118,7 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ping command function
 async def ping_command(store, update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+    """
     Command for user if they want to ping a host
 
     Parameters
@@ -122,17 +129,15 @@ async def ping_command(store, update: Update, context: ContextTypes.DEFAULT_TYPE
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     host = store.hostobj[context.args[0].lower().capitalize()]
     host.ping(1)
     ping = host.pinginfo["average_ping"]
     await update.message.reply_text(f"Ping to {host.host_name}: 🏓\n{ping} ms")
 
 
-async def ping_info_command(
-    store, update: Update, context: ContextTypes.DEFAULT_TYPE
-):
-    '''
+async def ping_info_command(store, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
     Command for user if they want to ping a host with more information
 
     Parameters
@@ -143,7 +148,7 @@ async def ping_info_command(
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     host = store.hostobj[context.args[0].lower().capitalize()]
     count = int(context.args[1])
     host.ping(count)
@@ -164,7 +169,7 @@ Ping Times: {ping_times}
 
 # add host command function
 async def add_host_command(store, update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+    """
     Command for user if they want to add a host
 
     Parameters
@@ -175,7 +180,7 @@ async def add_host_command(store, update: Update, context: ContextTypes.DEFAULT_
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     host = (f"{context.args[0]}".lower()).capitalize()
     ip = f"{context.args[1]}"
 
@@ -186,8 +191,10 @@ async def add_host_command(store, update: Update, context: ContextTypes.DEFAULT_
         await update.message.reply_text(f"❌ Host already exists!")
 
 
-async def remove_host_command(store, update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+async def remove_host_command(
+    store, update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+    """
     Command for user if they want to remove a host
 
     Parameters
@@ -198,7 +205,7 @@ async def remove_host_command(store, update: Update, context: ContextTypes.DEFAU
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     host = (f"{context.args[0]}".lower()).capitalize()
     if host in store.hostobj.keys():
         store.remove_host(host)
@@ -208,10 +215,8 @@ async def remove_host_command(store, update: Update, context: ContextTypes.DEFAU
 
 
 # show hosts command function
-async def show_hosts_command(
-    store, update: Update, context: ContextTypes.DEFAULT_TYPE
-):
-    '''
+async def show_hosts_command(store, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
     Command for user if they want to see all hosts
 
     Parameters
@@ -222,7 +227,7 @@ async def show_hosts_command(
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     hosts_string = "Host - IP\n"
     for name, host in store.hostobj.items():
         hosts_string += f"{(host.host_name).capitalize()} - {host.ip}\n"
@@ -231,7 +236,7 @@ async def show_hosts_command(
 
 # chatid command function
 async def chatid_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+    """
     Command for user if they want to see their chat ID
 
     Parameters
@@ -240,13 +245,13 @@ async def chatid_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     await update.message.reply_text(update.message.chat_id)
 
 
 # subscribe command function
 async def subscribe_command(store, update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+    """
     Command for user if they want to subscribe to the bot
 
     Parameters
@@ -257,29 +262,44 @@ async def subscribe_command(store, update: Update, context: ContextTypes.DEFAULT
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
-    chatid = update.message.chat_id
+    """
+    chatid = str(update.message.chat_id)
     print(chatid)
-
-    if chatid not in store.subscribers:
-        store.add_subscriber(chatid)
+    arguments = context.args
+    if arguments == []:
         await update.message.reply_text(
-            f"""🔊 You have been subscribed to the Pachamama Network Status Bot
-            \n You will now receive notifications from the bot, such as:
-            \n1. When a restaurant's network goes down
-            \n2. When a restaurant's network comes back up
-            \n3. When a user logs in and out of CCTV
-            \n4. A global broadcast message from the Pachamama Network Status Bot"""
+            f"""❗️ To subscribe to the Pachamama Network Status Bot, please type the names of the notifications you want to receive:
+            \n📹 cctv: CCTV login and logout notifications
+            \n🚨 down: Restaurant network down notifications
+            \n🟢 status: Restaurant internet speed notifications
+            \n🔉 broadcast: Broadcast messages from the Pachamama Network Status Bot
+            \n\nFor example, type:'/subscribe cctv broadcast down'"""
         )
+
     else:
+        if chatid not in store.subscribers:
+            store.add_subscriber(chatid)
+        store.update_subscriptions(True, chatid, arguments)
+        listofsubs = f"\n"
+        for key, value in store.subscribers[chatid].items():
+            if value == True:
+                listofsubs += f"✅{key}\n"
+            else:
+                listofsubs += f"❌{key}\n"
         await update.message.reply_text(
-            f"❌ You are already subscribed to the Pachamama Network Status Bot"
+            f"""🔊 You are subscribed to the Pachamama Network Status Bot
+            \n You will now receive these notifications from the bot:
+            \n{listofsubs}
+            \nTo unsubscribe from the Pachamama Network Status Bot, please type '/unsubscribe'
+            """
         )
 
 
 # unsubscribe command function
-async def unsubscribe_command(store, update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+async def unsubscribe_command(
+    store, update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+    """
     Command for user if they want to unsubscribe from the bot
 
     Parameters
@@ -290,22 +310,70 @@ async def unsubscribe_command(store, update: Update, context: ContextTypes.DEFAU
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
-    chatid = update.message.chat_id
+    """
+    chatid = str(update.message.chat_id)
 
-    if chatid in store.subscribers:
-        store.remove_subscriber(chatid)
-        await update.message.reply_text(
-            f"🔇 You have been unsubscribed from the Pachamama Network Status Bot"
-        )
-    else:
+    arguments = context.args
+    if chatid not in store.subscribers:
         await update.message.reply_text(
             f"❌ You are not already subscribed to the Pachamama Network Status Bot"
         )
+    elif arguments == []:
+        await update.message.reply_text(
+            f"""❗️ To unsubscribe to the Pachamama Network Status Bot, please type the names of the notifications you want to unsubscribe from:
+            \n📹 cctv: CCTV login and logout notifications
+            \n🚨 down: Restaurant network down notifications
+            \n🟢 status: Restaurant internet speed notifications
+            \n🔉 broadcast: Broadcast messages from the Pachamama Network Status Bot
+            \n👍 all: All notifications
+            \n\nFor example, to unsub to some notifications, type:'/unsubscribe cctv status'
+            \nTo unsub to all notifications, type:'/unsubscribe all'"""
+        )
+
+    elif "all" in arguments:
+        store.remove_subscriber(chatid)
+        await update.message.reply_text(
+            f"🔇 You have been unsubscribed from the Pachamama Network Status Bot completely"
+        )
+    else:
+        store.update_subscriptions(False, chatid, arguments)
+        listofsubs = f"\n"
+        for key, value in store.subscribers[chatid].items():
+            if value == True:
+                listofsubs += f"✅{key}\n"
+            else:
+                listofsubs += f"❌{key}\n"
+
+        await update.message.reply_text(
+            f"""🔈 You are now only subscribed to these notifications:
+            \n{listofsubs}"""
+        )
+
+
+async def subscribers_command(
+    store, update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+    """
+    Command for user if they want to see all subscribers
+
+    Parameters
+    ----------
+    store : Store
+        Store object from Store class
+    update : Update
+        Update object from Telegram API
+    context : ContextTypes.DEFAULT_TYPE
+        Context object from Telegram API
+    """
+    all_subscribers = f"🔊 Subscribers:\n"
+    for key in store.subscribers:
+        all_subscribers += f"{key}\n"
+    print(all_subscribers)
+    await update.message.reply_text(all_subscribers)
 
 
 async def cctv_online(cctv, update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
+    """
     Command for user if they want to see all online CCTV users
 
     Parameters
@@ -316,7 +384,7 @@ async def cctv_online(cctv, update: Update, context: ContextTypes.DEFAULT_TYPE):
         Update object from Telegram API
     context : ContextTypes.DEFAULT_TYPE
         Context object from Telegram API
-    '''
+    """
     all_online = f"📹 Online CCTV Users:\n"
     for key, value in cctv.members.items():
         if value.logged_in == True:
@@ -326,7 +394,7 @@ async def cctv_online(cctv, update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def ping_all(store, TOKEN):
-    '''
+    """
     Function to ping all hosts and send notifications to subscribers
 
     Parameters
@@ -337,7 +405,7 @@ async def ping_all(store, TOKEN):
         Dictionary of subscribers
     TOKEN : str
         Telegram bot token
-    '''
+    """
     error_codes = {0: "\U0001F7E2", 1: "\U0001F7E1", 2: "\U0001F534", 3: "\u2620"}
     while True:
         print("pinging")
@@ -359,16 +427,25 @@ async def ping_all(store, TOKEN):
                 error_code = single_hostobj.green()
             else:
                 pass
-            
+            down_chatids = [
+                key
+                for key, value in store.subscribers.items()
+                if "down_sub" in value and value["down_sub"]
+            ]
+            status_chatids = [
+                key
+                for key, value in store.subscribers.items()
+                if "status_sub" in value and value["status_sub"]
+            ]
             if error_code == 3:
                 msg = f"""🚨 {single_hostobj.host_name} is down!
                         \nContact Benji to fix the network asap!
-                        \n(https://t.me/owen97779)""" 
-                await notify(msg, store.subscribers, TOKEN)
+                        \n(https://t.me/owen97779)"""
+                await notify(msg, down_chatids, TOKEN)
             if error_code != -1 and error_code != 3:
                 msg = f"""⚠️ {single_hostobj.host_name}:
                 Online: {status}
                 Internet Speed: {error_codes[error_code]}
                 Average ping: {str(round(average_ping, 2)) + "ms"}"""
-                await notify(msg, store.subscribers, TOKEN)
+                await notify(msg, status_chatids, TOKEN)
         await asyncio.sleep(10)

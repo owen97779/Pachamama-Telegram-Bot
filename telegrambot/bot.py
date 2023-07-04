@@ -1,12 +1,11 @@
 import os
-import sys
-import json
 import asyncio
 from functools import partial
 from cctv import CCTV
 from ping import Host
 from store import Store
 from typing import Final
+from container import start_webhook_server
 from telegram.ext import Application, CommandHandler
 from commands import (
     start_command,
@@ -20,6 +19,7 @@ from commands import (
     show_hosts_command,
     subscribe_command,
     unsubscribe_command,
+    subscribers_command,
     cctv_online,
     error,
     ping_all,
@@ -29,6 +29,10 @@ from commands import (
 def main():
     # with open("TOKEN.env", "r") as file:
     #     TOKEN = file.read().replace("\n", "")
+    # with open("CCTV_SERVER_HOST.env", "r") as file:
+    #     CCTV_SERVER_HOST = file.read().replace("\n", "")
+    # with open("CCTV_MQTT_TOPIC.env", "r") as file:
+    #     CCTV_MQTT_TOPIC = file.read().replace("\n", "")
 
     TOKEN = os.getenv("TOKEN")
     CCTV_SERVER_HOST = os.getenv("CCTV_SERVER_HOST")
@@ -37,6 +41,9 @@ def main():
     cctv = CCTV(CCTV_SERVER_HOST, CCTV_MQTT_TOPIC)
     store = Store("hosts.json", "subscribers.json")
     store.load()
+    # print("Store loaded")
+    # for store in store.allsubscribers:
+    #     print(f"{store}: {store.allsubscribers[store]}")
     app = Application.builder().token(TOKEN).build()
     print("Bot started")
 
@@ -92,6 +99,13 @@ def main():
         CommandHandler("subscribe", subscribe_command_partial)
     )  # add subscriber
 
+    subscribers_command_partial = partial(
+        subscribers_command, store
+    )  # show subscribers
+    app.add_handler(
+        CommandHandler("subscribers", subscribers_command_partial)
+    )  # show subscribers
+
     unsubscribe_command_partial = partial(
         unsubscribe_command, store
     )  # remove subscriber
@@ -110,6 +124,7 @@ def main():
     loop = asyncio.get_event_loop()
     loop.create_task(ping_all(store, TOKEN))
     loop.create_task(cctv.connect(store, TOKEN))
+    loop.create_task(start_webhook_server(store, TOKEN))
 
     # message checking for every n number of seconds
     print("Polling started")
