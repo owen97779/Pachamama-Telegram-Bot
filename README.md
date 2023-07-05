@@ -4,6 +4,8 @@
 
 The Pachamama Network Status Telegram Bot is designed to provide real-time updates and notifications regarding the status of networks within Pachamama Group. With this bot, users can stay informed about network outages, restoration of services, user logins, and receive important announcements from the bot.
 
+**@PachamamaNetwork_bot**
+
 **Important Note:**
 Please be aware that this project is still in development and may contain bugs or lack comprehensive error handling. Therefore, we advise proceeding with caution when using this codebase in a production environment or critical systems.
 
@@ -45,7 +47,7 @@ Bot token is required from [telegram](https://core.telegram.org/bots/api).
 1. Clone the repository
 
 ```bash
-$ git clone ...
+$ git clone git@github.com:owen97779/Pachamama-Telegram-Bot.git
 ```
 
 2. Create docker image from Dockerfile, include the token **INSERT-TOKEN** of your bot. If CCTV monitoring is required, use the **CCTV_SERVER_HOST** and **CCTV_MQTT_TOPIC** arguments. Python and all dependencies will also load.
